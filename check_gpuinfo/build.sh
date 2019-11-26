@@ -1,0 +1,1 @@
+nvcc -x cu check_gpuinfo.cu -o check_gpuinfo
