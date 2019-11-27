@@ -1,3 +1,12 @@
+/*********************************************************************
+ * @file 	check_gpuinfo.cu
+ * @brief 	display gpu information
+ * @author 	Bin Qu
+ * @email 	benquickdenn@foxmail.com
+ * @date	2019-11-26
+ * you can reedit or modify this file
+*********************************************************************/
+
 #include <cstdio>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
@@ -9,7 +18,7 @@
 void dispGPUInfo(const cudaDeviceProp& devProp);
 
 /**
- * @brief display gpu information
+ * @brief fetch gpu information
  * @param dev_id gpu id
  * @return GPU information
 */
