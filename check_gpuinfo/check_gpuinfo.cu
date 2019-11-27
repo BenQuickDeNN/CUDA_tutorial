@@ -45,7 +45,7 @@ cudaDeviceProp getGPUInfo(const unsigned int& dev_id)
 }
 void dispGPUInfo(const cudaDeviceProp& devProp)
 {
-	std::printf("ʹGPU name: %s\r\n", devProp.name);
+	std::printf("GPU name: %s\r\n", devProp.name);
 	std::printf("number of SMs: %d\r\n", devProp.multiProcessorCount);
 	std::printf("warp size: %d\r\n", devProp.warpSize);
 	std::printf("max number of thread per SM: %d\r\n", devProp.maxThreadsPerMultiProcessor);
