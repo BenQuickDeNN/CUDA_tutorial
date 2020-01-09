@@ -32,10 +32,10 @@ int main(int argc, char** argv)
 void dispThreadID()
 {
 	/* initialize grid */
-	dim3 gridSize(1, 1, 1);
+	dim3 gridSize(2, 3, 4);
 
 	/* initialize block */
-	dim3 blockSize(2, 4, 8);
+	dim3 blockSize(5, 6, 7);
 
 	/* allocate memory on host */
 	const unsigned int memSpace = gridSize.z * gridSize.y * gridSize.x *
@@ -64,6 +64,7 @@ void dispThreadID()
 	for (int i = 0; i < memSpace; i++)
 		std::printf("%d, ", threadID[i]);
 	std::printf("\r\n");
+
 	/* free memory on host */
 	std::free(threadID);
 }
