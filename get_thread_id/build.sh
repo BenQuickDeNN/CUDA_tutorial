@@ -1,0 +1,1 @@
+nvcc -x cu get_thread_id.cu -o get_thread_id
