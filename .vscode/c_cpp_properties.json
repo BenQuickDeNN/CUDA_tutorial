@@ -4,15 +4,16 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "E:\\CUDA\\Development\\v10.1\\include"
+                "${CUDA_PATH}/include"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "E:\\CUDA\\Development\\v10.1\\bin\\nvcc.exe",
+            "compilerPath": "${CUDA_PATH}/bin",
             "cStandard": "c11",
+            "cppStandard": "c++11",
             "intelliSenseMode": "clang-x64"
         }
     ],
