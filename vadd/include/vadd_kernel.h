@@ -3,9 +3,12 @@
  * @brief 	kernel source of vector add
  * @author 	Bin Qu
  * @email 	benquickdenn@foxmail.com
- * @date	2020-3-5
  * you can reedit or modify this file
 *********************************************************************/
+
+#ifndef VADD_KERNEL_H
+
+#define VADD_KERNEL_H
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
@@ -21,19 +24,19 @@
 */
 template<class T>
 __global__ void kernel_vadd(T* c, const T* a, const T* b, 
-    T alpha, T beta, int batSize, int steps);
+    T alpha, T beta, int batSize);
 
 template<class T>
 __global__ void kernel_vadd(T* c, const T* a, const T* b, 
-    T alpha, T beta, int batSize, int steps)
+    T alpha, T beta, int batSize)
 {
     /* compute thread id */
-    int iStart = threadIdx.x + blockIdx.x * blockDim.x;
-    iStart *= batSize;
+    int iStart = (threadIdx.x + blockIdx.x * blockDim.x) * batSize;
     const int iEnd = iStart + batSize;
 
     /* compute kernel */
-    for (int s = 0; s < steps; s++)
-        for (int i = iStart; i < iEnd; i++)
-            c[i] += alpha * a[i] + beta * b[i];
+    for (int i = iStart; i < iEnd; i++)
+        c[i] += alpha * a[i] + beta * b[i];
 }
+
+#endif
