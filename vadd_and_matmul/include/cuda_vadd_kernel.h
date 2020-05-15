@@ -1,5 +1,5 @@
 /*********************************************************************
- * @file 	vadd_kernel.cu
+ * @file 	cuda_vadd_kernel.cu
  * @brief 	kernel source of vector add
  * @author 	Bin Qu
  * @email 	benquickdenn@foxmail.com

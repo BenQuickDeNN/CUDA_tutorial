@@ -39,18 +39,18 @@ int main(int argc, char** argv)
         elapsed_trans);
 
     /* 浮点计算速率 */
-    double speed = (double)LEN / elapsed / THOUSAND;
-    double speed_trans = (double)LEN / elapsed_trans / THOUSAND;
+    double speed = (double)LEN / elapsed;
+    double speed_trans = (double)LEN / elapsed_trans;
     if (sizeof(type) == sizeof(float))
     {
-        fprintf(stdout, "the speed of CUDA arrayadd is %.3f GFLOPS \r\n", speed);
-        fprintf(stdout, "the speed of CUDA arrayadd (including data transmission) is %.3f GFLOPS \r\n", 
+        fprintf(stdout, "the speed of CUDA arrayadd is %.3f MFLOPS \r\n", speed);
+        fprintf(stdout, "the speed of CUDA arrayadd (including data transmission) is %.3f MFLOPS \r\n", 
             speed_trans);
     }
     else if (sizeof(type) == sizeof(double))
     {
-        fprintf(stdout, "the speed of CUDA arrayadd is %.3f GDFLOPS \r\n", speed);
-        fprintf(stdout, "the speed of CUDA arrayadd (including data transmission) is %.3f GDFLOPS \r\n", 
+        fprintf(stdout, "the speed of CUDA arrayadd is %.3f MDFLOPS \r\n", speed);
+        fprintf(stdout, "the speed of CUDA arrayadd (including data transmission) is %.3f MDFLOPS \r\n", 
             speed_trans);
     }
 

@@ -1,6 +1,6 @@
 /*********************************************************************
- * @file 	arithmetic.cu
- * @brief 	arithmetic file, including vadd and mmul
+ * @file 	cuda_vadd.h
+ * @brief 	cuda driven file
  * @author 	Bin Qu
  * @email 	benquickdenn@foxmail.com
  * you can reedit or modify this file
@@ -27,6 +27,7 @@
 * @param alpha scalar alpha
 * @param beta scalar beta
 * @param batSize batch size
+* @param len host端数组长度
 * @param elapsed 计算时间
 */
 void cuda_vadd(type* c, const type* a, const type* b,
@@ -39,7 +40,7 @@ void cuda_vadd(type* c, const type* a, const type* b,
 
     if (c == nullptr || a == nullptr || b == nullptr)
     {
-        std::fprintf(stderr, "vadd error: vector empty!\r\n");
+        fprintf(stderr, "vadd error: vector empty!\r\n");
         return;
     }
 
@@ -62,7 +63,6 @@ void cuda_vadd(type* c, const type* a, const type* b,
 
     /* allocate memory on gpu */
     type *cu_c, *cu_a, *cu_b;
-
     cudaMalloc((void**)&cu_c, lenCuda * sizeof(type));
     cudaMalloc((void**)&cu_a, lenCuda * sizeof(type));
     cudaMalloc((void**)&cu_b, lenCuda * sizeof(type));
@@ -84,7 +84,6 @@ void cuda_vadd(type* c, const type* a, const type* b,
     cudaFree(cu_b);
     cudaFree(cu_a);
     cudaFree(cu_c);
-    
 }
 
 #endif

@@ -27,11 +27,11 @@ int main()
     printf("CPU arrayadd elapsed = %.3f us\r\n", elapsed);
 
     /* 浮点计算速率 */
-    double speed = (double)LEN / elapsed / THOUSAND;
+    double speed = (double)LEN / elapsed;
     if (sizeof(type) == sizeof(float))
-        fprintf(stdout, "the speed of CPU arrayadd is %.3f GFLOPS \r\n", speed);
+        fprintf(stdout, "the speed of CPU arrayadd is %.3f MFLOPS \r\n", speed);
     else if (sizeof(type) == sizeof(double))
-        fprintf(stdout, "the speed of CPU arrayadd is %.3f GDFLOPS \r\n", speed);
+        fprintf(stdout, "the speed of CPU arrayadd is %.3f MDFLOPS \r\n", speed);
 
     return 0;
 }
