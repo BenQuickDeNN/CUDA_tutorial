@@ -5,7 +5,7 @@ SRC2="source/cuda_vadd.cpp"
 BIN1="bin/cpu_vadd"
 BIN2="bin/cuda_vadd"
 INC="include"
-OPT1="-O3 -fopenmp -Wall"
+OPT1="-fopenmp -Wall -ftree-vectorize"
 OPT2=""
 
 rm $BIN1

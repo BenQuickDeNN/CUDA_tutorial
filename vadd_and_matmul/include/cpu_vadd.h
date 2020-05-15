@@ -7,10 +7,11 @@
 
 #define CPU_VADD_H
 
-#include "intrinsic_vadd.h"
+//#include "intrinsic_vadd.h"
 #include "configure.h"
 
 #include <cstdlib>
+#include <omp.h>
 
 /**
  * @brief CPU向量加
@@ -25,6 +26,7 @@ void cpu_vadd(type* c, const type* a, const type* b,
     const type& alpha, const type& beta, const int& len)
 {
     /* 使用SSE向量指令集 */
+    /*
 #if type == float
     vadd4f(c, a, b, alpha, beta, len);
 #else
@@ -32,6 +34,11 @@ void cpu_vadd(type* c, const type* a, const type* b,
     vadd2d(c, a, b, alpha, beta, len);
 #endif
 #endif
+    */
+
+    #pragma omp parallel for
+    for (int i = 0; i < len; i++)
+        c[i] += alpha * a[i] + beta * b[i];
 }
 
 #endif
