@@ -9,6 +9,7 @@
 #define INTRINSIC_VADD_H
 
 #include <intrin.h>
+#include <omp.h>
 
 /**
  * @brief vector add for 128 bits float

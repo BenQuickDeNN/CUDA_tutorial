@@ -10,6 +10,8 @@
 
 #define CUDA_VADD_KERNEL_H
 
+#include "configure.h"
+
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
@@ -22,13 +24,11 @@
 * @param beta scalar beta
 * @param batSize batch size
 */
-template<class T>
-__global__ void kernel_vadd(T* c, const T* a, const T* b, 
-    T alpha, T beta, int batSize);
+__global__ void kernel_vadd(type* c, const type* a, const type* b, 
+    type alpha, type beta, int batSize);
 
-template<class T>
-__global__ void kernel_vadd(T* c, const T* a, const T* b, 
-    T alpha, T beta, int batSize)
+__global__ void kernel_vadd(type* c, const type* a, const type* b, 
+    type alpha, type beta, int batSize)
 {
     /* compute thread id */
     int iStart = (threadIdx.x + blockIdx.x * blockDim.x) * batSize;

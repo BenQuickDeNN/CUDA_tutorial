@@ -10,8 +10,8 @@
 const int LEN = 1 << 20; // 向量加问题规模
 
 typedef float type; // 数据类型
-const type alpha = 2.0, beta = 3.0; // 标量值
 
-const int OMP_NUM_THREADS = 4; // OpenMP线程数
+const int NUM_SM = 16; // GPU SM的个数
+const int MAX_NUM_THREAD_PER_SM = 1024; // 每个SM中允许的最大线程数
 
 #endif
