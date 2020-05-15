@@ -10,13 +10,13 @@
 
 #define CUDA_VADD_H
 
-#include "vadd_kernel.h"
+#include "cuda_vadd_kernel.h"
+#include "timer_win.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include <windows.h>
 
 const int NUM_SM = 16; // SM的个数
 const int MAX_NUM_THREAD_PER_SM = 1024; // 每个SM中允许的最大线程数
@@ -29,14 +29,15 @@ const int MAX_NUM_THREAD_PER_SM = 1024; // 每个SM中允许的最大线程数
 * @param alpha scalar alpha
 * @param beta scalar beta
 * @param batSize batch size
+* @param elapsed 计算时间
 */
 template<class T>
 void cuda_vadd(T* c, const T* a, const T* b,
-    const T& alpha, const T& beta, const int& len);
+    const T& alpha, const T& beta, const int& len, double& elapsed);
 
 template<class T>
 void cuda_vadd(T* c, const T* a, const T* b,
-    const T& alpha, const T& beta, const int& len)
+    const T& alpha, const T& beta, const int& len, double& elapsed)
 {
     using namespace std;
 
@@ -75,11 +76,10 @@ void cuda_vadd(T* c, const T* a, const T* b,
     cudaMemcpy(cu_b, b, len * sizeof(T), cudaMemcpyHostToDevice);
 
     /* activate kernel */
-    LARGE_INTEGER start, end, frequency; // 用于记录时间
-    QueryPerformanceFrequency(&frequency); // 获取硬件时钟频率
-    QueryPerformanceCounter(&start); // 开始
+    Timer_win tw;
+    tw.start();
     kernel_vadd<<<gridSize, blockSize>>>(cu_c, cu_a, cu_b, alpha, beta, batSize);
-    QueryPerformanceCounter(&end); // 结束
+    elapsed = tw.endus();
 
     /* copy data from gpu to host */
     cudaMemcpy(c, cu_c, len * sizeof(T), cudaMemcpyDeviceToHost);
@@ -89,14 +89,6 @@ void cuda_vadd(T* c, const T* a, const T* b,
     cudaFree(cu_a);
     cudaFree(cu_c);
     
-    /* 计算平均速度 */
-    double elapsed = (double)(end.QuadPart - start.QuadPart) / ((double)frequency.QuadPart);
-    printf("CUDA arrayadd elapsed = %.1f us\r\n", elapsed * 1000000.0);
-    double speed = (((double)len) / elapsed) / 1000000000.0;
-    if (sizeof(T) == sizeof(float))
-        fprintf(stdout, "the speed of CUDA arrayadd is %.3f GFLOPS \r\n", speed);
-    else if (sizeof(T) == sizeof(double))
-        fprintf(stdout, "the speed of CUDA arrayadd is %.3f GDFLOPS \r\n", speed);
 }
 
 #endif

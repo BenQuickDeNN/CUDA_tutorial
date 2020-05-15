@@ -6,9 +6,9 @@
  * you can reedit or modify this file
 *********************************************************************/
 
-#ifndef VADD_KERNEL_H
+#ifndef CUDA_VADD_KERNEL_H
 
-#define VADD_KERNEL_H
+#define CUDA_VADD_KERNEL_H
 
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
