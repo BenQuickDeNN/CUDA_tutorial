@@ -43,7 +43,7 @@ int main()
 
     /* OpenMP + CUDA */
     printf("openmp + cuda:\n");
-    int batSize = OMP_HEIGHT / NUM_HOST_THREAD; // 每个CPU OpenMP线程处理的行数
+    batSize = OMP_HEIGHT / NUM_HOST_THREAD; // 每个CPU OpenMP线程处理的行数
     C2.fill(0.0);
     tw.start();
     #pragma omp parallel for num_threads(NUM_THREAD)
