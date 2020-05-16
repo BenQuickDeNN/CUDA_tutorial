@@ -2,7 +2,7 @@ CC="nvcc"
 INC="include"
 SRC1="source/matmul.cpp"
 SRC2="source/matmul_large.cpp"
-BIN1="bin/matmul.exe"
+BIN1="bin/matmul"
 BIN2="bin/matmul_large"
 OPT=""
 
