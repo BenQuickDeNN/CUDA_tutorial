@@ -31,7 +31,7 @@ __global__ void kernel_vadd(type* c, const type* a, const type* b,
     type alpha, type beta, int batSize)
 {
     /* compute thread id */
-    int iStart = (threadIdx.x + blockIdx.x * blockDim.x) * batSize;
+    const int iStart = (threadIdx.x + blockIdx.x * blockDim.x) * batSize;
     const int iEnd = iStart + batSize;
 
     /* compute kernel */
