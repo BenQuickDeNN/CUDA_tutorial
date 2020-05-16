@@ -68,7 +68,7 @@ void cuda_matmul_rows(Matrix& C, const Matrix& A, const Matrix& B,
     cudaFree(cuA);
     cudaFree(cuC);
 
-    //C.disp(h_start, h_start + 1);
+    C.disp(h_start, h_start + 1);
 }
 
 #endif
