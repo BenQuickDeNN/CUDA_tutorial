@@ -158,7 +158,10 @@ inline bool Matrix::isEqual(const Matrix& m, const type& error) const
     for (int h = 0; h < height; h++)
         for (int w = 0; w < width; w++)
             if (std::fabs(getEle(h, w) - m(h, w)) > error)
+            {
+                fprintf(stderr, "not equal in (%d, %d)\n", h, w);
                 return false;
+            }
     
     return true;
 }
