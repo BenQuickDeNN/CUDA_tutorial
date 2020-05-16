@@ -27,6 +27,7 @@ int main()
     Timer_win tw;
 
     /* OpenMP */
+    /*
     printf("openmp:\n");
     int batSize = (int)ceil((double)HEIGHT / (double)NUM_THREAD);
     C1.fill(0.0);
@@ -39,11 +40,12 @@ int main()
         mat_mul_rows(C1, A, B, h_start, min(h_end, HEIGHT));
     }
     printf("elapsed %f s\n", tw.ends());
+    */
     //C1.disp(HEIGHT - 1, HEIGHT);
 
     /* OpenMP + CUDA */
     printf("openmp + cuda:\n");
-    batSize = OMP_HEIGHT / NUM_HOST_THREAD; // 每个CPU OpenMP线程处理的行数
+    int batSize = OMP_HEIGHT / NUM_HOST_THREAD; // 每个CPU OpenMP线程处理的行数
     C2.fill(0.0);
     tw.start();
     #pragma omp parallel for num_threads(NUM_THREAD)

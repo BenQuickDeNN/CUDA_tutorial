@@ -23,12 +23,11 @@ __global__ void cuda_matmul_kernel(type* C, const type* A, const type* B,
     /* 计算线程id */
     const int iStart = (threadIdx.x + blockIdx.x * blockDim.x) * batSizeC;
     const int iEnd = iStart + batSizeC;
-    int h, w;
 
     for (int i = iStart; i < iEnd; i++)
     {
-        h = i / widthC;
-        w = i % widthC;
+        const int h = i / widthC;
+        const int w = i % widthC;
         for (int k = 0; k < widthA; k++)
             C[h * widthC + w] += A[h * widthA + k] * B[k * widthB + w];
     }

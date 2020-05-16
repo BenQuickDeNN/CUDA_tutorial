@@ -44,29 +44,31 @@ void cuda_matmul_rows(Matrix& C, const Matrix& A, const Matrix& B,
     const int len_cudaA = batSizeA * NUM_SM * MAX_NUM_THREAD_PER_SM;
     const int len_cudaB = batSizeB * NUM_SM * MAX_NUM_THREAD_PER_SM;
 
+    printf("lencudaC=%d, len_cudaA=%d, len_cudaB=%d\n", len_cudaC, len_cudaA, len_cudaB);
+
     /* 分配内存 */
     type *cuC, *cuA, *cuB;
-    cudaMalloc((void**)&cuC, len_cudaC * sizeof(type));
-    cudaMalloc((void**)&cuA, len_cudaA * sizeof(type));
-    cudaMalloc((void**)&cuB, len_cudaB * sizeof(type));
+    printf("cuC malloc state = %d\n", cudaMalloc((void**)&cuC, len_cudaC * sizeof(type)));
+    printf("cuA malloc state = %d\n", cudaMalloc((void**)&cuA, len_cudaA * sizeof(type)));
+    printf("cuB malloc state = %d\n", cudaMalloc((void**)&cuB, len_cudaB * sizeof(type)));
 
     /* 传输数据 */
-    cudaMemcpy(cuA, &A(h_start, 0), rows * A.getWidth() * sizeof(type), cudaMemcpyHostToDevice);
-    cudaMemcpy(cuB, &B(0, 0), B.getHeight() * B.getWidth() * sizeof(type), cudaMemcpyHostToDevice);
+    printf("cuA cpy state = %d\n", cudaMemcpy(cuA, &A(h_start, 0), rows * A.getWidth() * sizeof(type), cudaMemcpyHostToDevice));
+    printf("cuB cpy state = %d\n", cudaMemcpy(cuB, &B(0, 0), B.getHeight() * B.getWidth() * sizeof(type), cudaMemcpyHostToDevice));
 
     /* 启动内核 */
     cuda_matmul_kernel<<<gridSize, blockSize>>>(cuC, cuA, cuB, 
         C.getWidth(), A.getWidth(), B.getWidth(), batSizeC);
 
     /* 传回结果 */
-    cudaMemcpy(&C(h_start, 0), cuC, rows * C.getWidth() * sizeof(type), cudaMemcpyDeviceToHost);
+    printf("cuC cpy state = %d\n", cudaMemcpy(&C(h_start, 0), cuC, rows * C.getWidth() * sizeof(type), cudaMemcpyDeviceToHost));
 
     /* 释放内存 */
     cudaFree(cuB);
     cudaFree(cuA);
     cudaFree(cuC);
 
-    C.disp(h_start, h_start + 1);
+    //C.disp(h_start, h_start + 1);
 }
 
 #endif
