@@ -9,7 +9,7 @@
 
 typedef float type; // 数据类型
 
-const int NUM_HOST_THREAD = 7; // host端OPENMP线程数
+const int NUM_HOST_THREAD = 3; // host端OPENMP线程数
 const int NUM_THREAD = NUM_HOST_THREAD + 1;
 
 const int NUM_SM = 16; // GPU SM的个数

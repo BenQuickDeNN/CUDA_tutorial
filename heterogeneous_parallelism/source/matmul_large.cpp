@@ -39,7 +39,6 @@ int main()
         mat_mul_rows(C1, A, B, h_start, min(h_end, HEIGHT));
     }
     printf("elapsed %f s\n", tw.ends());
-    //C1.disp(HEIGHT - 1, HEIGHT);
 
     /* OpenMP + CUDA */
     printf("openmp + cuda:\n");
@@ -57,7 +56,6 @@ int main()
             mat_mul_rows(C2, A, B, h_start, h_end);
     }
     printf("elapsed %f s\n", tw.ends());
-    //C2.disp(HEIGHT - 1, HEIGHT);
 
     /* 验证结果正确性 */
     if (C1.isEqual(C2, 1.0))
