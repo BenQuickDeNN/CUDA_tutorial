@@ -27,7 +27,6 @@ int main()
     Timer_win tw;
 
     /* OpenMP */
-    /*
     printf("openmp:\n");
     int batSize = (int)ceil((double)HEIGHT / (double)NUM_THREAD);
     C1.fill(0.0);
@@ -40,7 +39,6 @@ int main()
         mat_mul_rows(C1, A, B, h_start, min(h_end, HEIGHT));
     }
     printf("elapsed %f s\n", tw.ends());
-    */
     //C1.disp(HEIGHT - 1, HEIGHT);
 
     /* OpenMP + CUDA */
