@@ -33,4 +33,10 @@ void cuda_exec_gemm(type *_C, type *_A, type *_B,
     /* 分配内存 */
     type *cu_C, *cu_A, *cu_B;
     cudaMalloc((void**)&cu_C, _height * _width * sizeof(type));
+    cudaMalloc((void**)&cu_A, _height * _width_A * sizeof(type));
+    cudaMalloc((void**)&cu_B, _width * _width_B * sizeof(type));
+
+    /* 释放内存 */
+    cudaFree(cu_A);
+    cudaFree(cu_C);
 }
