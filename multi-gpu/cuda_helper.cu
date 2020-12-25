@@ -25,5 +25,12 @@ void cuda_exec_gemm(type *_C, type *_A, type *_B,
     /* 设置网格grid和block */
     cudaDeviceProp devProp;
     cudaGetDeviceProperties(&devProp, 0);
-    auto num_blocks = devProp.multiProcessorCount * devProp.maxBlocksPerMultiProcessor;
+    int num_blocks = devProp.multiProcessorCount * devProp.maxBlocksPerMultiProcessor;
+    int num_threads_per_blocks = devProp.maxThreadsPerBlock;
+    dim3 gridSize(num_blocks, 1, 1);
+    dim3 blockSize(num_threads_per_blocks, 1, 1);
+
+    /* 分配内存 */
+    type *cu_C, *cu_A, *cu_B;
+    cudaMalloc((void**)&cu_C, _height * _width * sizeof(type));
 }
