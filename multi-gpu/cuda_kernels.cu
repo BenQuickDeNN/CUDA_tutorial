@@ -10,18 +10,16 @@
  * @param _B 参与运算的矩阵
  * @param _height 矩阵C的高度
  * @param _width 矩阵C的宽度
- * @param _offset_h 矩阵C竖直方向的起始索引
  * @param _width_A 矩阵A的宽度和矩阵B的高度
  */
-__global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_t _width, size_t _offset_h, size_t _width_A)
+__global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_t _width, size_t _width_A)
 {
     // 采用动态线程调度方式
 
-    size_t tid = blockIdx.x * blockDim.x + threadIdx.x; // 线程号
-    size_t idx = tid + _offset_h * _width; // 索引号
+    size_t idx = blockIdx.x * blockDim.x + threadIdx.x; // 索引号
     size_t stride = gridDim.x * blockDim.x; // 索引号更新的步长
-    size_t max_idx = _height * _width + idx; // 最大索引号
-    for (; idx < max_idx; idx += stride)
+    size_t max_idx = _height * _width; // 最大索引号
+    while (idx < max_idx)
     {
         size_t h = idx / _width;
         size_t w = idx % _width;
@@ -32,5 +30,6 @@ __global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_
         {
             _C[idx1] += _A[idx2 + k] * _B[k * _width + w];
         }
+        idx += stride;
     }
 }
