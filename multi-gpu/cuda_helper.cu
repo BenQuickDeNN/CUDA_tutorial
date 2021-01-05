@@ -18,7 +18,7 @@ const size_t GIGA = 1024 * 1024 * 1024;
  * @param _width_A 矩阵A的宽度和矩阵B的高度
  * @param _device_id GPU编号
  */
-void cuda_exec_gemm(type *_C, type *_A, type *_B, 
+bool cuda_exec_gemm(type *_C, type *_A, type *_B, 
     size_t _height, size_t _width, size_t _width_A,
     size_t _device_id)
 {

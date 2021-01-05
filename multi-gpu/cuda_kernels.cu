@@ -25,7 +25,7 @@ __global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_
         size_t w = idx % _width;
         size_t idx1= h * _width + w;
         size_t idx2 = h * _width_A;
-        _C[idx1] = 0.0;
+        // _C[idx1] = 0.0;
         for (size_t k = 0; k < _width_A; ++k)
         {
             _C[idx1] += _A[idx2 + k] * _B[k * _width + w];

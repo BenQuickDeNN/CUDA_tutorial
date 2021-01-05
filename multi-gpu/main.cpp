@@ -6,9 +6,9 @@
 
 using namespace std;
 
-const size_t height_C = 80 * 32 * 1024 * 8;
-const size_t width_C = 64;
-const size_t width_A = 64;
+const size_t height_C = 10000;
+const size_t width_C = 10000;
+const size_t width_A = 10;
 const size_t workload_h_gpu0 = height_C / 2;
 const size_t workload_h_gpu1 = height_C - workload_h_gpu0;
 
@@ -29,7 +29,7 @@ int main()
         cuda_exec_gemm(C + workload_h_per_gpu * device * width_C, A, B, height_C, width_C, width_A, device);
     }
 */
-    cuda_exec_gemm(C + workload_h_per_gpu * 0 * width_C, A, B, height_C, width_C, width_A, 0);
+    cuda_exec_gemm(C, A, B, height_C, width_C, width_A, 0);
 
     delete[] B;
     delete[] A;
