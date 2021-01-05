@@ -17,11 +17,14 @@ int main()
     A = new type[height_C * width_A];
     B = new type[width_A * width_C];
 
+/*
 #pragma omp parallel for num_threads(2)
     for (size_t device = 0; device < 2; ++device)
     {
-        cuda_exec_gemm(C, A, B, height_C, width_C, workload_h_per_gpu * device, width_A, device);
+        cuda_exec_gemm(C + workload_h_per_gpu * device * width_C, A, B, height_C, width_C, width_A, device);
     }
+*/
+    cuda_exec_gemm(C + workload_h_per_gpu * 0 * width_C, A, B, height_C, width_C, width_A, 0);
 
     delete[] B;
     delete[] A;
