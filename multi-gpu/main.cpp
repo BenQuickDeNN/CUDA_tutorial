@@ -6,9 +6,9 @@
 
 using namespace std;
 
-const size_t height_C = 10000;
-const size_t width_C = 10000;
-const size_t width_A = 10;
+const size_t height_C = 512;
+const size_t width_C = 512;
+const size_t width_A = 512;
 const size_t workload_h_gpu0 = height_C / 2;
 const size_t workload_h_gpu1 = height_C - workload_h_gpu0;
 
