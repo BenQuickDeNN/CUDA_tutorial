@@ -29,7 +29,7 @@ int main()
         cuda_exec_gemm(C + workload_h_per_gpu * device * width_C, A, B, height_C, width_C, width_A, device);
     }
 */
-    cuda_exec_gemm(C, A, B, height_C, width_C, width_A, 0);
+    cuda_exec_gemm(C, A, B, height_C, width_C, width_A, 1);
 
     delete[] B;
     delete[] A;
