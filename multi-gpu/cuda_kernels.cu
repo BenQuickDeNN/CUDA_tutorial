@@ -18,8 +18,8 @@ __global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_
 
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x; // 线程号
     size_t stride = gridDim.x * blockDim.x; // 索引号更新的步长
-    size_t max_idx = _height * _width + idx; // 最大索引号
-    for (; idx < max_idx; idx += stride)
+    size_t max_idx = _height * _width; // 最大索引号
+    while (idx < max_idx)
     {
         size_t h = idx / _width;
         size_t w = idx % _width;
@@ -30,5 +30,6 @@ __global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_
         {
             _C[idx1] += _A[idx2 + k] * _B[k * _width + w];
         }
+        idx += stride;
     }
 }
