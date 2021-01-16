@@ -14,7 +14,6 @@
  */
 __global__ void cuda_my_gemm(type *_C, type *_A, type *_B, size_t _height, size_t _width, size_t _width_A)
 {
-    // 采用动态线程调度方式
 
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x; // 线程号
     size_t stride = gridDim.x * blockDim.x; // 索引号更新的步长
