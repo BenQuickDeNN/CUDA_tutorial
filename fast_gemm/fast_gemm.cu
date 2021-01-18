@@ -31,8 +31,16 @@
 #include <cuda_runtime.h>
 
 // Helper functions and utilities to work with CUDA
-#include <helper_functions.h>
-#include <helper_cuda.h>
+// #include <helper_functions.h>
+// #include <helper_cuda.h>
+#include <stdlib.h>
+
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+#include <device_launch_parameters.h>
+
+#include <math.h>
+#include <helper_string.h>
 
 /**
  * Matrix multiplication (CUDA Kernel) on the device: C = A * B
@@ -149,16 +157,16 @@ int MatrixMultiply(int argc, char **argv,
         exit(EXIT_FAILURE);
     }
 
-    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_A), mem_size_A));
+    (cudaMalloc(reinterpret_cast<void **>(&d_A), mem_size_A));
 
-    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_B), mem_size_B));
+    (cudaMalloc(reinterpret_cast<void **>(&d_B), mem_size_B));
 
-    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_C), mem_size_C));
+    (cudaMalloc(reinterpret_cast<void **>(&d_C), mem_size_C));
 
     // copy host memory to device
-    checkCudaErrors(cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice));
+    (cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice));
 
-    checkCudaErrors(cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
+    (cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
 
     // Setup execution parameters
     dim3 threads(block_size, block_size);
@@ -182,13 +190,13 @@ int MatrixMultiply(int argc, char **argv,
 
     // Allocate CUDA events that we'll use for timing
     cudaEvent_t start;
-    checkCudaErrors(cudaEventCreate(&start));
+    (cudaEventCreate(&start));
 
     cudaEvent_t stop;
-    checkCudaErrors(cudaEventCreate(&stop));
+    (cudaEventCreate(&stop));
 
     // Record the start event
-    checkCudaErrors(cudaEventRecord(start, NULL));
+    (cudaEventRecord(start, NULL));
 
     // Execute the kernel
     int nIter = 300;
@@ -204,13 +212,13 @@ int MatrixMultiply(int argc, char **argv,
     }
 
     // Record the stop event
-    checkCudaErrors(cudaEventRecord(stop, NULL));
+    (cudaEventRecord(stop, NULL));
 
     // Wait for the stop event to complete
-    checkCudaErrors(cudaEventSynchronize(stop));
+    (cudaEventSynchronize(stop));
 
     float msecTotal = 0.0f;
-    checkCudaErrors(cudaEventElapsedTime(&msecTotal, start, stop));
+    (cudaEventElapsedTime(&msecTotal, start, stop));
 
     // Compute and print the performance
     float msecPerMatrixMul = msecTotal / nIter;
@@ -228,7 +236,7 @@ int MatrixMultiply(int argc, char **argv,
         threads.x * threads.y);
 
     // Copy result from device to host
-    checkCudaErrors(cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost));
+    (cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost));
 
     printf("Checking computed result for correctness: ");
     bool correct = true;
@@ -256,9 +264,9 @@ int MatrixMultiply(int argc, char **argv,
     free(h_A);
     free(h_B);
     free(h_C);
-    checkCudaErrors(cudaFree(d_A));
-    checkCudaErrors(cudaFree(d_B));
-    checkCudaErrors(cudaFree(d_C));
+    (cudaFree(d_A));
+    (cudaFree(d_B));
+    (cudaFree(d_C));
 
     printf("\nNOTE: The CUDA Samples are not meant for performance"\
            "measurements. Results may vary when GPU Boost is enabled.\n");
