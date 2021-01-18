@@ -40,7 +40,6 @@
 #include <device_launch_parameters.h>
 
 #include <math.h>
-#include <helper_string.h>
 
 /**
  * Matrix multiplication (CUDA Kernel) on the device: C = A * B
@@ -285,51 +284,14 @@ int MatrixMultiply(int argc, char **argv,
 int main(int argc, char **argv) {
     printf("[Matrix Multiply Using CUDA] - Starting...\n");
 
-    if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
-            checkCmdLineFlag(argc, (const char **)argv, "?")) {
-        printf("Usage -device=n (n >= 0 for deviceID)\n");
-        printf("      -wA=WidthA -hA=HeightA (Width x Height of Matrix A)\n");
-        printf("      -wB=WidthB -hB=HeightB (Width x Height of Matrix B)\n");
-        printf("  Note: Outer matrix dimensions of A & B matrices" \
-               " must be equal.\n");
-
-        exit(EXIT_SUCCESS);
-    }
-
     // This will pick the best possible CUDA capable device, otherwise
     // override the device ID based on input provided at the command line
-    int dev = findCudaDevice(argc, (const char **)argv);
+    int dev = 0;
 
     int block_size = 32;
 
     dim3 dimsA(5 * 2 * block_size, 5 * 2 * block_size, 1);
     dim3 dimsB(5 * 4 * block_size, 5 * 2 * block_size, 1);
-
-    // width of Matrix A
-    if (checkCmdLineFlag(argc, (const char **)argv, "wA")) {
-        dimsA.x = getCmdLineArgumentInt(argc, (const char **)argv, "wA");
-    }
-
-    // height of Matrix A
-    if (checkCmdLineFlag(argc, (const char **)argv, "hA")) {
-        dimsA.y = getCmdLineArgumentInt(argc, (const char **)argv, "hA");
-    }
-
-    // width of Matrix B
-    if (checkCmdLineFlag(argc, (const char **)argv, "wB")) {
-        dimsB.x = getCmdLineArgumentInt(argc, (const char **)argv, "wB");
-    }
-
-    // height of Matrix B
-    if (checkCmdLineFlag(argc, (const char **)argv, "hB")) {
-        dimsB.y = getCmdLineArgumentInt(argc, (const char **)argv, "hB");
-    }
-
-    if (dimsA.x != dimsB.y) {
-        printf("Error: outer matrix dimensions must be equal. (%d != %d)\n",
-               dimsA.x, dimsB.y);
-        exit(EXIT_FAILURE);
-    }
 
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y,
                                                dimsB.x, dimsB.y);
