@@ -10,11 +10,11 @@ const size_t GIGA = 1 << 30;
 typedef float type;
 // typedef double type
 
-const size_t WidthA = 512;
-const size_t HeightA = 512;
+const size_t WidthA = 1024;
+const size_t HeightA = 1024;
 
-const size_t WidthB = 512;
-const size_t HeightB = 512;
+const size_t WidthB = 1024;
+const size_t HeightB = 1024;
 
 type A[HeightA * WidthA], B[HeightB * WidthB], C[HeightA * WidthB];
 
@@ -40,7 +40,7 @@ __global__ void cuda_gemm(type *_C, type *_A, type *_B, size_t _wC, size_t _wA, 
 // 使用shared memory
 __global__ void cuda_gemm2(type *_C, type *_A, type *_B, size_t _wC, size_t _wA, size_t _wB, size_t _maxIdx)
 {
-    extern __shared__ type As[], Bs[];
+    // extern __shared__ type As[], Bs[]; // 动态分配
     // 获取As的长度
 }
 
