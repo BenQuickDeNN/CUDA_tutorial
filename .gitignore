@@ -4,4 +4,4 @@
 *.lib
 main
 sample_mm
-gemm
+my_gemm
