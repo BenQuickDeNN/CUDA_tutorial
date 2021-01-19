@@ -290,8 +290,8 @@ int main(int argc, char **argv) {
 
     int block_size = 32;
 
-    dim3 dimsA(5 * 2 * block_size, 5 * 2 * block_size, 1);
-    dim3 dimsB(5 * 4 * block_size, 5 * 2 * block_size, 1);
+    dim3 dimsA(10 * 5 * 2 * block_size, 10 * 5 * 2 * block_size, 1);
+    dim3 dimsB(10 * 5 * 4 * block_size, 10 * 5 * 2 * block_size, 1);
 
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y,
                                                dimsB.x, dimsB.y);
