@@ -31,15 +31,8 @@
 #include <cuda_runtime.h>
 
 // Helper functions and utilities to work with CUDA
-// #include <helper_functions.h>
-// #include <helper_cuda.h>
-#include <stdlib.h>
-
-#include <cuda.h>
-#include <cuda_runtime_api.h>
-#include <device_launch_parameters.h>
-
-#include <math.h>
+#include <helper_functions.h>
+#include <helper_cuda.h>
 
 /**
  * Matrix multiplication (CUDA Kernel) on the device: C = A * B
@@ -156,16 +149,16 @@ int MatrixMultiply(int argc, char **argv,
         exit(EXIT_FAILURE);
     }
 
-    (cudaMalloc(reinterpret_cast<void **>(&d_A), mem_size_A));
+    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_A), mem_size_A));
 
-    (cudaMalloc(reinterpret_cast<void **>(&d_B), mem_size_B));
+    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_B), mem_size_B));
 
-    (cudaMalloc(reinterpret_cast<void **>(&d_C), mem_size_C));
+    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_C), mem_size_C));
 
     // copy host memory to device
-    (cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_A, h_A, mem_size_A, cudaMemcpyHostToDevice));
 
-    (cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_B, h_B, mem_size_B, cudaMemcpyHostToDevice));
 
     // Setup execution parameters
     dim3 threads(block_size, block_size);
@@ -189,13 +182,13 @@ int MatrixMultiply(int argc, char **argv,
 
     // Allocate CUDA events that we'll use for timing
     cudaEvent_t start;
-    (cudaEventCreate(&start));
+    checkCudaErrors(cudaEventCreate(&start));
 
     cudaEvent_t stop;
-    (cudaEventCreate(&stop));
+    checkCudaErrors(cudaEventCreate(&stop));
 
     // Record the start event
-    (cudaEventRecord(start, NULL));
+    checkCudaErrors(cudaEventRecord(start, NULL));
 
     // Execute the kernel
     int nIter = 300;
@@ -211,13 +204,13 @@ int MatrixMultiply(int argc, char **argv,
     }
 
     // Record the stop event
-    (cudaEventRecord(stop, NULL));
+    checkCudaErrors(cudaEventRecord(stop, NULL));
 
     // Wait for the stop event to complete
-    (cudaEventSynchronize(stop));
+    checkCudaErrors(cudaEventSynchronize(stop));
 
     float msecTotal = 0.0f;
-    (cudaEventElapsedTime(&msecTotal, start, stop));
+    checkCudaErrors(cudaEventElapsedTime(&msecTotal, start, stop));
 
     // Compute and print the performance
     float msecPerMatrixMul = msecTotal / nIter;
@@ -235,7 +228,7 @@ int MatrixMultiply(int argc, char **argv,
         threads.x * threads.y);
 
     // Copy result from device to host
-    (cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(h_C, d_C, mem_size_C, cudaMemcpyDeviceToHost));
 
     printf("Checking computed result for correctness: ");
     bool correct = true;
@@ -263,9 +256,9 @@ int MatrixMultiply(int argc, char **argv,
     free(h_A);
     free(h_B);
     free(h_C);
-    (cudaFree(d_A));
-    (cudaFree(d_B));
-    (cudaFree(d_C));
+    checkCudaErrors(cudaFree(d_A));
+    checkCudaErrors(cudaFree(d_B));
+    checkCudaErrors(cudaFree(d_C));
 
     printf("\nNOTE: The CUDA Samples are not meant for performance"\
            "measurements. Results may vary when GPU Boost is enabled.\n");
@@ -284,14 +277,51 @@ int MatrixMultiply(int argc, char **argv,
 int main(int argc, char **argv) {
     printf("[Matrix Multiply Using CUDA] - Starting...\n");
 
+    if (checkCmdLineFlag(argc, (const char **)argv, "help") ||
+            checkCmdLineFlag(argc, (const char **)argv, "?")) {
+        printf("Usage -device=n (n >= 0 for deviceID)\n");
+        printf("      -wA=WidthA -hA=HeightA (Width x Height of Matrix A)\n");
+        printf("      -wB=WidthB -hB=HeightB (Width x Height of Matrix B)\n");
+        printf("  Note: Outer matrix dimensions of A & B matrices" \
+               " must be equal.\n");
+
+        exit(EXIT_SUCCESS);
+    }
+
     // This will pick the best possible CUDA capable device, otherwise
     // override the device ID based on input provided at the command line
-    int dev = 0;
+    int dev = findCudaDevice(argc, (const char **)argv);
 
     int block_size = 32;
 
     dim3 dimsA(10 * 5 * 2 * block_size, 10 * 5 * 2 * block_size, 1);
     dim3 dimsB(10 * 5 * 4 * block_size, 10 * 5 * 2 * block_size, 1);
+
+    // width of Matrix A
+    if (checkCmdLineFlag(argc, (const char **)argv, "wA")) {
+        dimsA.x = getCmdLineArgumentInt(argc, (const char **)argv, "wA");
+    }
+
+    // height of Matrix A
+    if (checkCmdLineFlag(argc, (const char **)argv, "hA")) {
+        dimsA.y = getCmdLineArgumentInt(argc, (const char **)argv, "hA");
+    }
+
+    // width of Matrix B
+    if (checkCmdLineFlag(argc, (const char **)argv, "wB")) {
+        dimsB.x = getCmdLineArgumentInt(argc, (const char **)argv, "wB");
+    }
+
+    // height of Matrix B
+    if (checkCmdLineFlag(argc, (const char **)argv, "hB")) {
+        dimsB.y = getCmdLineArgumentInt(argc, (const char **)argv, "hB");
+    }
+
+    if (dimsA.x != dimsB.y) {
+        printf("Error: outer matrix dimensions must be equal. (%d != %d)\n",
+               dimsA.x, dimsB.y);
+        exit(EXIT_FAILURE);
+    }
 
     printf("MatrixA(%d,%d), MatrixB(%d,%d)\n", dimsA.x, dimsA.y,
                                                dimsB.x, dimsB.y);
