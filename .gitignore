@@ -3,5 +3,3 @@
 *.exp
 *.lib
 main
-sample_mm
-my_gemm
