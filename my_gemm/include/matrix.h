@@ -25,6 +25,11 @@ public:
         return at(_y, _x);
     }
 
+    type * getArray()
+    {
+        return data;
+    }
+
     // 矩阵乘
     // _C = _A * _B
     static void Multiply(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B)
@@ -50,6 +55,19 @@ public:
                 _C(y, x) = _c;
             }
         }
+    }
+
+    // 检查矩阵是否可乘
+    static bool canMul(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B)
+    {
+        using namespace std;
+        
+        if (_A.width != _B.height || _C.height != _A.height || _C.width != _B.width)
+        {
+            cerr << "host matrix cannot multiply!" << endl;
+            return false;
+        }
+        return true;
     }
 
     void fill(const type &_val)
@@ -101,6 +119,15 @@ public:
         }
     }
 
+    void flush()
+    {
+        if (data != NULL)
+        {
+            free(data);
+            data = NULL;
+        }
+    }
+
     MatirxHost(const size_t &_sizeY, const size_t &_sizeX) : height(_sizeY), width(_sizeX)
     {
         using namespace std;
@@ -114,10 +141,6 @@ public:
 
     ~MatirxHost()
     {
-        if (data != NULL)
-        {
-            free(data);
-            data = NULL;
-        }
+        flush();
     }
 };

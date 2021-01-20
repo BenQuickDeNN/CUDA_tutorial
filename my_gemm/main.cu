@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include "config.h"
 #include "matrix.h"
+#include "cuda_helpers.h"
 
 using namespace std;
 
@@ -14,6 +15,8 @@ int main()
     MatirxHost C(HeightC, WidthC), C_verify(HeightC, WidthC);
 
     A.fill(2.0); B.fill(3.0);
+
+    exec_gemm_cuda_kernel(cuda_gemm, 1);
 
     MatirxHost::Multiply(C_verify, A, B);
 
