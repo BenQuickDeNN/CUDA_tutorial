@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <cmath>
 #include "config.h"
 #include "cuda_kernels.h"
 #include "matrix.h"
@@ -93,8 +94,6 @@ public:
     static bool sendData(type *_source, type *_target, const size_t &_length)
     {
         using namespace std;
-        
-        cout << "_source = " << _source << ", _target = " << _target << endl;
 
         if (auto code = cudaMemcpy(_target, _source, _length * sizeof(type), cudaMemcpyHostToDevice) != cudaSuccess)
         {
@@ -108,8 +107,6 @@ public:
     static bool receivedData(type *_source, type *_target, const size_t &_length)
     {
         using namespace std;
-
-        cout << "_source = " << _source << ", _target = " << _target << endl;
 
         if (auto code = cudaMemcpy(_target, _source, _length * sizeof(type), cudaMemcpyDeviceToHost) != cudaSuccess)
         {
@@ -198,29 +195,52 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     if (!CUDAHelper::sendData(_B.data, cu_B, _B.size())) { return false; }
 
     // GPU热身
-    cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, 
+                _C.height, _C.width, _A.width, _B.width, 
+                0, 0);
     // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
     cudaDeviceSynchronize();
 
     // 执行内核
     cout << "start kernel..." << endl;
+
+    const size_t grid_length_X = GRID_SIZE_X * BLOCK_SIZE_X;
+    const size_t grid_length_Y = GRID_SIZE_Y * BLOCK_SIZE_Y;
+    const size_t blocks_X = (size_t)ceil((double)_C.width / (double)grid_length_X);
+    const size_t blocks_Y = (size_t)ceil((double)_C.width / (double)grid_length_Y);
+
     cudaEvent_t start, stop;
     float elapsed;
+
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
+
     cudaEventRecord(start, 0);
-    cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
-    // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+
+    for (size_t block_Y = 0; block_Y < blocks_Y; ++block_Y)
+    {
+        for (size_t block_X = 0; block_X < blocks_X; ++block_X)
+        {
+            cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, 
+                _C.height, _C.width, _A.width, _B.width, 
+                block_Y * grid_length_Y, block_X * grid_length_X);
+            // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+            cudaDeviceSynchronize();
+        }
+    }
+
     cudaEventRecord(stop, 0);
+
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&elapsed, start, stop);
+
     cout << "kernel elapsed " << elapsed << " ms" << endl;
     cout << "computation speed is " << (float)(_C.size() * _A.width * 2 * 1000) / elapsed / (float)GIGA << " GFlops" << endl;
+
     cudaEventDestroy(stop);
     cudaEventDestroy(start);
 
     // 传回数据
-    // bug: 数据可能没传回
     if (!CUDAHelper::receivedData(cu_C, _C.data, _C.size())) { return false; }
     
     // 释放内存

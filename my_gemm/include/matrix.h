@@ -39,7 +39,7 @@ public:
 
         if (_A.width != _B.height || _C.height != _A.height || _C.width != _B.width)
         {
-            cerr << "host matrix multiplication fail!" << endl;
+            cerr << "matmul stop: host matrix cannot multiply!" << endl;
             return;
         }
 
@@ -130,7 +130,7 @@ public:
     {
         using namespace std;
 
-        data = reinterpret_cast<type *>(malloc(_sizeY * _sizeY * sizeof(type)));
+        data = new type[_sizeY * _sizeX];
         if (data == NULL)
         {
             cerr << "memory allocation for host matrix fail!" << endl;
@@ -143,7 +143,7 @@ public:
     {
         if (data != NULL)
         {
-            free(data);
+            delete[] data;
             data = NULL;
         }
     }
