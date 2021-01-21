@@ -4,9 +4,6 @@
 
 typedef float type; // 设置数据类型
 
-#define GRID_SIZE_1 12
-#define GRID_SIZE_2 12
-
-#define BLOCK_SIZE_1 32
-#define BLOCK_SIZE_2 32
-#define BLOCK_SIZE_3 32
+const size_t KILO = 1 << 10;
+const size_t MEGA = 1 << 20;
+const size_t GIGA = 1 << 30;

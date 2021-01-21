@@ -15,6 +15,11 @@ public:
     size_t height = 0;
     size_t width = 0;
 
+    size_t size()
+    {
+        return height * width;
+    }
+
     type & at(const size_t &_y, const size_t &_x)
     {
         return data[_y * width + _x];

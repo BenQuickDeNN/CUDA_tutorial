@@ -3,6 +3,7 @@
 #include <cuda_runtime.h>
 #include "config.h"
 
+template <size_t BLOCK_SIZE_1, size_t BLOCK_SIZE_2, size_t BLOCK_SIZE_3>
 __global__ void cuda_gemm(type *_C, type *_A, type *_B,
     size_t _wA, size_t _wB,
     size_t _maxIdx)
