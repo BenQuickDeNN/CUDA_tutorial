@@ -3,8 +3,46 @@
 #include <cuda_runtime.h>
 #include "config.h"
 
-template <size_t BLOCK_SIZE_1, size_t BLOCK_SIZE_2, size_t BLOCK_SIZE_3>
 __global__ void cuda_gemm(type *_C, type *_A, type *_B,
+    size_t _wA, size_t _wB,
+    size_t _maxIdx)
+{
+    // 分块索引
+    size_t bx = blockIdx.x;
+    size_t by = blockDim.y;
+
+    // 线程索引
+    size_t tx = threadIdx.x;
+    size_t ty = threadIdx.y;
+
+    // 二维索引
+    size_t y = by * blockDim.y + ty;
+    size_t x = bx * blockDim.x + tx;
+
+    // 一维索引
+    size_t idx = y * gridDim.x * blockDim.x + x;
+
+    // 判断当前索引是否越界
+    if (idx >= _maxIdx)
+    {
+        return;
+    }
+
+    // 使用寄存器存储中间计算结果
+    type _c = 0;
+    
+    // 计算
+    for (size_t k = 0; k < _wA; ++k)
+    {
+        _c += _A[y * _wA + k] * _B[k * _wB + x];
+    }
+
+    // 计算结果写回
+    _C[idx] = _c;
+}
+
+template <size_t BLOCK_SIZE_1, size_t BLOCK_SIZE_2, size_t BLOCK_SIZE_3>
+__global__ void cuda_gemm2(type *_C, type *_A, type *_B,
     size_t _wA, size_t _wB,
     size_t _maxIdx)
 {

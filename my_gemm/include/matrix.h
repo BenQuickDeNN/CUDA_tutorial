@@ -10,8 +10,9 @@
 class MatirxHost
 {
 private:
-    type *data = NULL;
+    
 public:
+    type *data = NULL;
     size_t height = 0;
     size_t width = 0;
 
@@ -28,11 +29,6 @@ public:
     type & operator () (const size_t &_y, const size_t &_x)
     {
         return at(_y, _x);
-    }
-
-    type * getArray()
-    {
-        return data;
     }
 
     // 矩阵乘
@@ -103,10 +99,16 @@ public:
             {
                 if (abs(at(y, x) - _C(y, x)) > _error)
                 {
+                    cerr << "matrix comparation fail in position (" << y;
+                    cerr << ", " << x << "), different value (";
+                    cerr << at(y, x) << " and " << _C(y, x) << ")" << endl;
                     return false;
                 }
             }
         }
+
+        cout << "result pass" << endl;
+
         return true;
     }
 
@@ -124,6 +126,19 @@ public:
         }
     }
 
+    void init(const size_t &_sizeY, const size_t &_sizeX)
+    {
+        using namespace std;
+
+        data = reinterpret_cast<type *>(malloc(_sizeY * _sizeY * sizeof(type)));
+        if (data == NULL)
+        {
+            cerr << "memory allocation for host matrix fail!" << endl;
+        }
+        height = _sizeY;
+        width = _sizeX;
+    }
+
     void flush()
     {
         if (data != NULL)
@@ -133,15 +148,9 @@ public:
         }
     }
 
-    MatirxHost(const size_t &_sizeY, const size_t &_sizeX) : height(_sizeY), width(_sizeX)
+    MatirxHost(const size_t &_sizeY, const size_t &_sizeX)
     {
-        using namespace std;
-
-        data = (type*)malloc(_sizeY * _sizeY * sizeof(type));
-        if (data == NULL)
-        {
-            cerr << "memory allocation for host matrix fail!" << endl;
-        }
+        init(_sizeY, _sizeX);
     }
 
     ~MatirxHost()

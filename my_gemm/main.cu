@@ -16,9 +16,11 @@ int main()
 
     A.fill(2.0); B.fill(3.0);
 
-    exec_cuda_gemm_kernel(C, A, B, 16, 16, 32, 32, 32, 1);
-
-    MatirxHost::Multiply(C_verify, A, B);
+    if (exec_cuda_gemm_kernel<16, 16, 32, 32, 32>(C, A, B, 1))
+    {
+        MatirxHost::Multiply(C_verify, A, B);
+        C_verify.compare(C, 0.1);
+    }
 
     return 0;
 }

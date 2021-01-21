@@ -13,9 +13,9 @@ public:
     {
         using namespace std;
 
-        if (cudaSetDevice(_deviceId) != 0)
+        if (auto code = cudaSetDevice(_deviceId) != cudaSuccess)
         {
-            cerr << "error: device " << _deviceId << " is not available" << endl;
+            cerr << "error: fail to set device " << _deviceId << ", error code = " << code << endl;
             return false;
         }
 
@@ -29,9 +29,9 @@ public:
         using namespace std;
 
         cudaDeviceProp devProp;
-        if (cudaGetDeviceProperties(&devProp, _deviceId) != 0)
+        if (auto code = cudaGetDeviceProperties(&devProp, _deviceId) != cudaSuccess)
         {
-            cerr << "fail to fetch GPU infomation!" << endl;
+            cerr << "fail to fetch GPU infomation, error code = " << code << endl;
             return false;
         }
 
@@ -60,13 +60,13 @@ public:
         cout << "Shared Memory Per Block: " << (double)_sharedMemPerBlock / (double)KILO << " KB" << endl;
     }
 
-    static bool cuMalloc(type *_arr, const size_t &_length)
+    static bool cuMalloc(void **_addr, const size_t &_length)
     {
         using namespace std;
 
-        if (cudaMalloc((void**)&_arr, _length * sizeof(type)) != 0)
+        if (auto code = cudaMalloc(_addr, _length * sizeof(type)) != cudaSuccess)
         {
-            cerr << "error: memory allocation on GPU fail" << endl;
+            cerr << "error: memory allocation on GPU fail, error code = " << code << endl;
             return false;
         }
 
@@ -79,9 +79,9 @@ public:
 
         if (_arr != NULL)
         {
-            if (cudaFree(_arr) != 0)
+            if (auto code = cudaFree(_arr) != cudaSuccess)
             {
-                cerr << "error: memory free on GPU fail" << endl;
+                cerr << "error: memory free on GPU fail, error code = " << code << endl;
                 return false;
             }
             _arr = NULL;
@@ -93,10 +93,12 @@ public:
     static bool sendData(type *_source, type *_target, const size_t &_length)
     {
         using namespace std;
+        
+        cout << "_source = " << _source << ", _target = " << _target << endl;
 
-        if (!cudaMemcpy(_target, _source, _length * sizeof(type), cudaMemcpyHostToDevice) != 0)
+        if (auto code = cudaMemcpy(_target, _source, _length * sizeof(type), cudaMemcpyHostToDevice) != cudaSuccess)
         {
-            cerr << "error: sending data fail" << endl;
+            cerr << "error: sending data fail, error code = " << code << endl;
             return false;
         }
 
@@ -107,9 +109,11 @@ public:
     {
         using namespace std;
 
-        if (!cudaMemcpy(_target, _source, _length * sizeof(type), cudaMemcpyDeviceToHost) != 0)
+        cout << "_source = " << _source << ", _target = " << _target << endl;
+
+        if (auto code = cudaMemcpy(_target, _source, _length * sizeof(type), cudaMemcpyDeviceToHost) != cudaSuccess)
         {
-            cerr << "error: receiving data fail" << endl;
+            cerr << "error: receiving data fail, error code = " << code << endl;
             return false;
         }
 
@@ -117,10 +121,8 @@ public:
     }
 };
 
+template <size_t GRID_SIZE_X, size_t GRID_SIZE_Y, size_t BLOCK_SIZE_X, size_t BLOCK_SIZE_Y, size_t WIDTH_AS>
 bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
-    const size_t &_gridSizeX, const size_t &_gridSizeY, 
-    const size_t &_blockSizeX, const size_t &_blockSizeY,
-    const size_t &_widthAs,
     const size_t &_deviceId = 0)
 {
     using namespace std;
@@ -145,15 +147,22 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
         gpuinfo_max_threads_per_block, gpuinfo_max_blocks_per_sm, gpuinfo_sm_count,
         gpuinfo_total_global_mem, gpuinfo_shared_mem_per_block);
 
+    // 打印CUDA配置
+    cout << "GRID_SIZE_X = " << GRID_SIZE_X << endl;
+    cout << "GRID_SIZE_Y = " << GRID_SIZE_Y << endl;
+    cout << "BLOCK_SIZE_X = " << BLOCK_SIZE_X << endl;
+    cout << "BLOCK_SIZE_Y = " << BLOCK_SIZE_Y << endl;
+    cout << "WIDTH_AS = " << WIDTH_AS << endl;
+
     // 检查网格大小是否符合要求
-    if (_gridSizeX * _gridSizeY > gpuinfo_max_blocks_per_sm * gpuinfo_sm_count)
+    if (GRID_SIZE_X * GRID_SIZE_Y > gpuinfo_max_blocks_per_sm * gpuinfo_sm_count)
     {
         cerr << "stop: too large grid size" << endl;
         return false;
     }
 
     // 检查block大小是否符合要求
-    if (_blockSizeX * _blockSizeY > gpuinfo_max_threads_per_block)
+    if (BLOCK_SIZE_X * BLOCK_SIZE_Y > gpuinfo_max_threads_per_block)
     {
         cerr << "stop: too larege block size" << endl;
         return false;
@@ -167,30 +176,52 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     }
 
     // 检查分配到shared memory的数据规模是否超过shared memory容量
-    if ((_blockSizeX + _blockSizeY) * _widthAs * sizeof(type) >= gpuinfo_shared_mem_per_block)
+    if ((BLOCK_SIZE_X + BLOCK_SIZE_Y) * WIDTH_AS * sizeof(type) >= gpuinfo_shared_mem_per_block)
     {
         cerr << "stop: data size on shared memory is larger than shared memory capacity" << endl;
         return false;
     }
 
     // 设置网格grid和block
-    dim3 grid_dim(_gridSizeX, _gridSizeY, 1);
-    dim3 block_dim(_blockSizeX, _blockSizeY, 1);
+    dim3 grid_dim(GRID_SIZE_X, GRID_SIZE_Y, 1);
+    dim3 block_dim(BLOCK_SIZE_X, BLOCK_SIZE_Y, 1);
 
     // 分配内存
-    type *cu_C, *cu_A, *cu_B;
-    if (!CUDAHelper::cuMalloc(cu_C, _C.size())) { return false; }
-    if (!CUDAHelper::cuMalloc(cu_A, _A.size())) { return false; }
-    if (!CUDAHelper::cuMalloc(cu_B, _B.size())) { return false; }
+    type *cu_C = NULL, *cu_A = NULL, *cu_B = NULL;
+    if (!CUDAHelper::cuMalloc(reinterpret_cast<void **>(&cu_C), _C.size())) { return false; }
+    if (!CUDAHelper::cuMalloc(reinterpret_cast<void **>(&cu_A), _A.size())) { return false; }
+    if (!CUDAHelper::cuMalloc(reinterpret_cast<void **>(&cu_B), _B.size())) { return false; }
 
     // 传输数据
-    if (!CUDAHelper::sendData(_A.getArray(), cu_A, _A.size())) { return false; }
-    if (!CUDAHelper::sendData(_B.getArray(), cu_B, _B.size())) { return false; }
+    // bug: 数据可能没传上
+    if (!CUDAHelper::sendData(_A.data, cu_A, _A.size())) { return false; }
+    if (!CUDAHelper::sendData(_B.data, cu_B, _B.size())) { return false; }
+
+    // GPU热身
+    cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    cudaDeviceSynchronize();
 
     // 执行内核
+    cout << "start kernel..." << endl;
+    cudaEvent_t start, stop;
+    float elapsed;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
+    cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&elapsed, start, stop);
+    cout << "kernel elapsed " << elapsed << " ms" << endl;
+    cout << "computation speed is " << (float)(_C.size() * _A.width * 2 * 1000) / elapsed / (float)GIGA << " GFlops" << endl;
+    cudaEventDestroy(stop);
+    cudaEventDestroy(start);
 
     // 传回数据
-    if (!CUDAHelper::receivedData(cu_C, _C.getArray(), _C.size())) { return false; }
+    // bug: 数据可能没传回
+    if (!CUDAHelper::receivedData(cu_C, _C.data, _C.size())) { return false; }
     
     // 释放内存
     if (!CUDAHelper::cuFree(cu_B)) { return false; }
