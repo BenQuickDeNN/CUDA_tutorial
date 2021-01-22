@@ -118,7 +118,7 @@ public:
     }
 };
 
-template <size_t GRID_SIZE_X, size_t GRID_SIZE_Y, size_t BLOCK_SIZE_X, size_t BLOCK_SIZE_Y, size_t WIDTH_AS>
+template <size_t GRID_SIZE, size_t BLOCK_SIZE>
 bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     const bool &_flag_sharedmem,
     const size_t &_deviceId = 0)
@@ -149,11 +149,8 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
         gpuinfo_total_global_mem, gpuinfo_shared_mem_per_block);
 
     // 打印CUDA配置
-    cout << "GRID_SIZE_X = " << GRID_SIZE_X << endl;
-    cout << "GRID_SIZE_Y = " << GRID_SIZE_Y << endl;
-    cout << "BLOCK_SIZE_X = " << BLOCK_SIZE_X << endl;
-    cout << "BLOCK_SIZE_Y = " << BLOCK_SIZE_Y << endl;
-    cout << "WIDTH_AS = " << WIDTH_AS << endl;
+    cout << "GRID_SIZE = " << GRID_SIZE << endl;
+    cout << "BLOCK_SIZE = " << BLOCK_SIZE << endl;
     cout << "USE_SHARED_MEM = ";
     if (_flag_sharedmem)
     {
@@ -166,14 +163,14 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     cout << endl;
 
     // 检查网格大小是否符合要求
-    if (GRID_SIZE_X * GRID_SIZE_Y > gpuinfo_max_blocks_per_sm * gpuinfo_sm_count)
+    if (GRID_SIZE * GRID_SIZE > gpuinfo_max_blocks_per_sm * gpuinfo_sm_count)
     {
         cerr << "stop: too large grid size" << endl;
         return false;
     }
 
     // 检查block大小是否符合要求
-    if (BLOCK_SIZE_X * BLOCK_SIZE_Y > gpuinfo_max_threads_per_block)
+    if (BLOCK_SIZE * BLOCK_SIZE > gpuinfo_max_threads_per_block)
     {
         cerr << "stop: too larege block size" << endl;
         return false;
@@ -187,15 +184,15 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     }
 
     // 检查分配到shared memory的数据规模是否超过shared memory容量
-    if ((BLOCK_SIZE_X + BLOCK_SIZE_Y) * WIDTH_AS * sizeof(type) >= gpuinfo_shared_mem_per_block)
+    if (BLOCK_SIZE * BLOCK_SIZE * 2 * sizeof(type) >= gpuinfo_shared_mem_per_block)
     {
         cerr << "stop: data size on shared memory is larger than shared memory capacity" << endl;
         return false;
     }
 
     // 设置网格grid和block
-    dim3 grid_dim(GRID_SIZE_X, GRID_SIZE_Y, 1);
-    dim3 block_dim(BLOCK_SIZE_X, BLOCK_SIZE_Y, 1);
+    dim3 grid_dim(GRID_SIZE, GRID_SIZE, 1);
+    dim3 block_dim(BLOCK_SIZE, BLOCK_SIZE, 1);
 
     // 分配内存
     type *cu_C = NULL, *cu_A = NULL, *cu_B = NULL;
@@ -211,7 +208,9 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     // GPU热身
     if (_flag_sharedmem)
     {
-        // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+        cuda_gemm_shared_mem<BLOCK_SIZE><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B,
+            _C.height, _C.width, _A.width, _B.width, 
+            0, 0);
     }
     else
     {
@@ -225,10 +224,10 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     // 执行内核
     cout << "start kernel..." << endl;
 
-    const size_t grid_length_X = GRID_SIZE_X * BLOCK_SIZE_X;
-    const size_t grid_length_Y = GRID_SIZE_Y * BLOCK_SIZE_Y;
+    const size_t grid_length_X = GRID_SIZE * BLOCK_SIZE;
+    const size_t grid_length_Y = GRID_SIZE * BLOCK_SIZE;
     const size_t blocks_X = (size_t)ceil((double)_C.width / (double)grid_length_X);
-    const size_t blocks_Y = (size_t)ceil((double)_C.width / (double)grid_length_Y);
+    const size_t blocks_Y = (size_t)ceil((double)_C.height / (double)grid_length_Y);
 
     cudaEvent_t start, stop;
     float elapsed;
@@ -240,7 +239,16 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
 
     if (_flag_sharedmem)
     {
-        // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+        for (size_t block_Y = 0; block_Y < blocks_Y; ++block_Y)
+        {
+            for (size_t block_X = 0; block_X < blocks_X; ++block_X)
+            {
+                cuda_gemm_shared_mem<BLOCK_SIZE><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B,
+                    _C.height, _C.width, _A.width, _B.width, 
+                    block_Y * grid_length_Y, block_X * grid_length_X);
+                cudaDeviceSynchronize();
+            }
+        }
     }
     else
     {

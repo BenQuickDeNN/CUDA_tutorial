@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <string>
 #include <omp.h>
 #include <cmath>
 #include "config.h"
@@ -124,6 +126,34 @@ public:
             }
             cout << endl;
         }
+    }
+
+    void writeToFile(const std::string &_filename)
+    {
+        using namespace std;
+
+        ofstream writer(_filename);
+        if (!writer)
+        {
+            cerr << "matrix error: fail to write to file" << endl;
+            return;
+        }
+        for (size_t y = 0; y < height; ++y)
+        {
+            for (size_t x = 0; x < width; ++x)
+            {
+                writer << at(y,x);
+                if (x < width - 1)
+                {
+                    writer << "\t";
+                }
+            }
+            if (y < height - 1)
+            {
+                writer << "\r\n";
+            }
+        }
+        writer.close();
     }
 
     void init(const size_t &_sizeY, const size_t &_sizeX)

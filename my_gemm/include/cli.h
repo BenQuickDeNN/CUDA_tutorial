@@ -10,12 +10,12 @@ Usage: main(.exe) [options] file...\r\n\
 Options:\r\n\
   --help                Display this information.\r\n\
   --version             Display the version.\r\n\
-  --sharedmem           Use shared memory.\r\n\
-  --device  <integer>   Choose device ID.\r\n\
-  --HeightA <integer>   Set the height of matrix A.\r\n\
-  --WidthA  <integer>   Set the width of matrix A.\r\n\
-  --HeightB <integer>   Set the height of matrix B.\r\n\
-  --WidthB  <integer>   Set the width of matrix B.\
+  --shared_mem          Enalbe shared memory.       (Default disable)\r\n\
+  --device  <integer>   Choose device ID.           (Default 0)\r\n\
+  --HeightA <integer>   Set the height of matrix A. (Default 1024)\r\n\
+  --WidthA  <integer>   Set the width of matrix A.  (Default 1024)\r\n\
+  --HeightB <integer>   Set the height of matrix B. (Default 1024)\r\n\
+  --WidthB  <integer>   Set the width of matrix B.  (Default 1024)\
 ";
 
 std::string CLI_VERSION =
@@ -34,8 +34,8 @@ static struct option CLI_LONG_OPTIONS[] =
 {
     {"help",        no_argument,        0,  'h'},
     {"version",     no_argument,        0,  'v'},
+    {"shared_mem",  no_argument,        0,  's'},
     {"device",      required_argument,  0,  'd'},
-    {"sharedmem",   required_argument,  0,  's'},
     {"HeightA",     required_argument,  0,  'g'},
     {"WidthA",      required_argument,  0,  'k'},
     {"HeightB",     required_argument,  0,  't'},

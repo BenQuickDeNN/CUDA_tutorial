@@ -8,8 +8,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    size_t HeightA = 1024, WidthA = 1024;
-    size_t HeightB = WidthA, WidthB = 1024;
+    size_t HeightA = 512, WidthA = 512;
+    size_t HeightB = WidthA, WidthB = 512;
 
     size_t device_id = 0;
 
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     while (true)
     {
         int option_index = 0;
-        int c = getopt_long(argc, argv, "hvgktw", CLI_LONG_OPTIONS, &option_index);
+        int c = getopt_long(argc, argv, "hvdsgktw", CLI_LONG_OPTIONS, &option_index);
 
         // 如果没有命令行参数
         if (c == -1)
@@ -79,8 +79,7 @@ int main(int argc, char **argv)
     A.fill(2.0); B.fill(3.0);
 
     // 执行CUDA内核，根据GPU计算能力和矩阵形状选择适合的grid和block
-    if (exec_cuda_gemm_kernel<GLOBAL_GRID_SIZE_X, GLOBAL_GRID_SIZE_Y, 
-        GLOBAL_BLOCK_SIZE_X, GLOBAL_BLOCK_SIZE_Y, GLOBAL_WIDHT_AS>(C, A, B, flag_sharedmem, device_id))
+    if (exec_cuda_gemm_kernel<GLOBAL_GRID_SIZE, GLOBAL_BLOCK_SIZE>(C, A, B, flag_sharedmem, device_id))
     {
         MatirxHost::Multiply(C_verify, A, B);
         C_verify.compare(C, 0.1);
@@ -89,6 +88,9 @@ int main(int argc, char **argv)
         // C.display();
         // cout << endl << "C_verify:" << endl;
         // C_verify.display();
+
+        C.writeToFile("matrix_C.txt");
+        C_verify.writeToFile("matrix_C_verify.txt");
     }
 
     exit(0);
