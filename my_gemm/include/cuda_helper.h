@@ -120,9 +120,13 @@ public:
 
 template <size_t GRID_SIZE_X, size_t GRID_SIZE_Y, size_t BLOCK_SIZE_X, size_t BLOCK_SIZE_Y, size_t WIDTH_AS>
 bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
+    const bool &_flag_sharedmem,
     const size_t &_deviceId = 0)
 {
     using namespace std;
+
+    // 检查矩阵是否可乘
+    if (!MatirxHost::canMul(_C, _A, _B)) { return false; }
 
     // 选择和检测GPU
     if (!CUDAHelper::setGPU(_deviceId)) { return false; }
@@ -150,6 +154,16 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     cout << "BLOCK_SIZE_X = " << BLOCK_SIZE_X << endl;
     cout << "BLOCK_SIZE_Y = " << BLOCK_SIZE_Y << endl;
     cout << "WIDTH_AS = " << WIDTH_AS << endl;
+    cout << "USE_SHARED_MEM = ";
+    if (_flag_sharedmem)
+    {
+        cout << "true";
+    }
+    else
+    {
+        cout << "false";
+    }
+    cout << endl;
 
     // 检查网格大小是否符合要求
     if (GRID_SIZE_X * GRID_SIZE_Y > gpuinfo_max_blocks_per_sm * gpuinfo_sm_count)
@@ -195,10 +209,17 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     if (!CUDAHelper::sendData(_B.data, cu_B, _B.size())) { return false; }
 
     // GPU热身
-    cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, 
-                _C.height, _C.width, _A.width, _B.width, 
-                0, 0);
-    // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    if (_flag_sharedmem)
+    {
+        // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    }
+    else
+    {
+        cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, 
+                    _C.height, _C.width, _A.width, _B.width, 
+                    0, 0);
+    }
+    
     cudaDeviceSynchronize();
 
     // 执行内核
@@ -217,15 +238,21 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
 
     cudaEventRecord(start, 0);
 
-    for (size_t block_Y = 0; block_Y < blocks_Y; ++block_Y)
+    if (_flag_sharedmem)
     {
-        for (size_t block_X = 0; block_X < blocks_X; ++block_X)
+        // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
+    }
+    else
+    {
+        for (size_t block_Y = 0; block_Y < blocks_Y; ++block_Y)
         {
-            cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, 
-                _C.height, _C.width, _A.width, _B.width, 
-                block_Y * grid_length_Y, block_X * grid_length_X);
-            // cuda_gemm2<BLOCK_SIZE_Y, BLOCK_SIZE_X, WIDTH_AS><<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, _A.width, _B.width, _C.size());
-            cudaDeviceSynchronize();
+            for (size_t block_X = 0; block_X < blocks_X; ++block_X)
+            {
+                cuda_gemm<<<grid_dim, block_dim>>>(cu_C, cu_A, cu_B, 
+                    _C.height, _C.width, _A.width, _B.width, 
+                    block_Y * grid_length_Y, block_X * grid_length_X);
+                cudaDeviceSynchronize();
+            }
         }
     }
 
