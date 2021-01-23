@@ -40,7 +40,7 @@ __global__ void cuda_gemm(type *_C, type *_A, type *_B,
     }
 }
 
-// 还需要参照cuda_gemm修改
+// 计算结果仍然不正确
 template <size_t BLOCK_SIZE>
 __global__ void cuda_gemm_shared_mem(type *_C, type *_A, type *_B,
     size_t _hC, size_t _wC, size_t _wA, size_t _wB, 

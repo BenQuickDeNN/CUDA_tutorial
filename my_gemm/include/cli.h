@@ -12,11 +12,11 @@ Options:\r\n\
   --version | -v                            Display the version.\r\n\
   --shared_mem | -s                         Enalbe shared memory.                                   (Default disable)\r\n\
   --device <integer> | --device=<integer>   Choose device ID.                                       (Default 0)\r\n\
-  --HeightA <integer> | --HeightA=<integer> Set the height of matrix A.                             (Default 1024)\r\n\
-  --WidthA <integer> | --WidthA=<integer>   Set the width of matrix A.                              (Default 1024)\r\n\
-  --HeightB <integer> | --HeightB=<integer> Set the height of matrix B.                             (Default 1024)\r\n\
-  --WidthB <integer> | --WidthB=<integer>   Set the width of matrix B.                              (Default 1024)\r\n\
-  --AllSize <integer> | --AllSize=<integer> Set HeightA, WidthA, HeightB and WidthB in one command. (Default 1024)\
+  --HeightA <integer> | --HeightA=<integer> Set the height of matrix A.                             (Default 512)\r\n\
+  --WidthA <integer> | --WidthA=<integer>   Set the width of matrix A.                              (Default 512)\r\n\
+  --HeightB <integer> | --HeightB=<integer> Set the height of matrix B.                             (Default 512)\r\n\
+  --WidthB <integer> | --WidthB=<integer>   Set the width of matrix B.                              (Default 512)\r\n\
+  --AllSize <integer> | --AllSize=<integer> Set HeightA, WidthA, HeightB and WidthB in one command. (Default 512)\
 ";
 
 std::string CLI_VERSION =

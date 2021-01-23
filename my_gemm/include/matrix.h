@@ -85,6 +85,18 @@ public:
         }
     }
 
+    // 随机生成矩阵元素
+    void fillRandom(const size_t &_maxVal)
+    {
+        for (size_t y = 0; y < height; ++y)
+        {
+            for (size_t x = 0; x < width; ++x)
+            {
+                at(y, x) = (type)(rand() % _maxVal);
+            }
+        }
+    }
+
     bool compare(MatirxHost &_C, type _error)
     {
         using namespace std;

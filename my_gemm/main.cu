@@ -8,8 +8,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    size_t HeightA = 512, WidthA = 512;
-    size_t HeightB = WidthA, WidthB = 512;
+    size_t HeightA = GLOBAL_SIZE, WidthA = GLOBAL_SIZE;
+    size_t HeightB = WidthA, WidthB = GLOBAL_SIZE;
 
     size_t device_id = 0;
 
@@ -82,7 +82,8 @@ int main(int argc, char **argv)
     MatirxHost A(HeightA, WidthA), B(HeightB, WidthB);
     MatirxHost C(HeightC, WidthC), C_verify(HeightC, WidthC);
 
-    A.fill(2.0); B.fill(3.0);
+    // A.fill(2.0); B.fill(3.0);
+    A.fillRandom(10); B.fillRandom(10);
 
     // 执行CUDA内核，根据GPU计算能力和矩阵形状选择适合的grid和block
     if (exec_cuda_gemm_kernel<GLOBAL_GRID_SIZE, GLOBAL_BLOCK_SIZE>(C, A, B, flag_sharedmem, device_id))
