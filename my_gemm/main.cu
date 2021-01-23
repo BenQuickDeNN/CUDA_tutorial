@@ -84,6 +84,8 @@ int main(int argc, char **argv)
 
     // A.fill(2.0); B.fill(3.0);
     A.fillRandom(10); B.fillRandom(10);
+    A.writeToFile("matrix_A.txt");
+    B.writeToFile("matrix_B.txt");
 
     // 执行CUDA内核，根据GPU计算能力和矩阵形状选择适合的grid和block
     if (exec_cuda_gemm_kernel<GLOBAL_GRID_SIZE, GLOBAL_BLOCK_SIZE>(C, A, B, flag_sharedmem, device_id))
