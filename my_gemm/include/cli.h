@@ -8,14 +8,15 @@ std::string CLI_HELP =
 "\
 Usage: main(.exe) [options] file...\r\n\
 Options:\r\n\
-  --help                Display this information.\r\n\
-  --version             Display the version.\r\n\
-  --shared_mem          Enalbe shared memory.       (Default disable)\r\n\
-  --device  <integer>   Choose device ID.           (Default 0)\r\n\
-  --HeightA <integer>   Set the height of matrix A. (Default 1024)\r\n\
-  --WidthA  <integer>   Set the width of matrix A.  (Default 1024)\r\n\
-  --HeightB <integer>   Set the height of matrix B. (Default 1024)\r\n\
-  --WidthB  <integer>   Set the width of matrix B.  (Default 1024)\
+  --help | -h                               Display this information.\r\n\
+  --version | -v                            Display the version.\r\n\
+  --shared_mem | -s                         Enalbe shared memory.                                   (Default disable)\r\n\
+  --device <integer> | --device=<integer>   Choose device ID.                                       (Default 0)\r\n\
+  --HeightA <integer> | --HeightA=<integer> Set the height of matrix A.                             (Default 1024)\r\n\
+  --WidthA <integer> | --WidthA=<integer>   Set the width of matrix A.                              (Default 1024)\r\n\
+  --HeightB <integer> | --HeightB=<integer> Set the height of matrix B.                             (Default 1024)\r\n\
+  --WidthB <integer> | --WidthB=<integer>   Set the width of matrix B.                              (Default 1024)\r\n\
+  --AllSize <integer> | --AllSize=<integer> Set HeightA, WidthA, HeightB and WidthB in one command. (Default 1024)\
 ";
 
 std::string CLI_VERSION =
@@ -40,6 +41,7 @@ static struct option CLI_LONG_OPTIONS[] =
     {"WidthA",      required_argument,  0,  'k'},
     {"HeightB",     required_argument,  0,  't'},
     {"WidthB",      required_argument,  0,  'w'},
+    {"AllSize",     required_argument,  0,  'a'},
     {0,             0,                  0,  0}
 };
 

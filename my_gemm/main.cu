@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     while (true)
     {
         int option_index = 0;
-        int c = getopt_long(argc, argv, "hvdsgktw", CLI_LONG_OPTIONS, &option_index);
+        int c = getopt_long(argc, argv, "hvdsgktwa", CLI_LONG_OPTIONS, &option_index);
 
         // 如果没有命令行参数
         if (c == -1)
@@ -55,6 +55,12 @@ int main(int argc, char **argv)
             break;
         case 'w':
             WidthB = atoi(optarg);
+            break;
+        case 'a':
+            HeightA = atoi(optarg);
+            WidthA = HeightA;
+            HeightB = HeightA;
+            WidthB = HeightA;
             break;
         default:
             showInvalidCLIInfo();

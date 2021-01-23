@@ -55,7 +55,7 @@ public:
         cout << "Device Id: " << _deviceId << endl;
         cout << "GPU Name: " << _name << endl;
         cout << "Max Threads Per Block: " << _maxThreadsPerBlock << endl;
-        cout << "Max Blocks Per SM: " << _maxBlocksPerSM << endl;
+        cout << "Max blocks Per SM: " << _maxBlocksPerSM << endl;
         cout << "SM Count: " << _smCount << endl;
         cout << "Total Global Memory: " << (double)_totalGlobalMem / (double)GIGA << " GB" << endl;
         cout << "Shared Memory Per Block: " << (double)_sharedMemPerBlock / (double)KILO << " KB" << endl;
