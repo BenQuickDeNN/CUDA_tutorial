@@ -1,4 +1,5 @@
 /*********************************************************************
+ * @file    matmul.cpp
  * @author 	Bin Qu
  * @email 	benquickdenn@foxmail.com
 *********************************************************************/
@@ -10,8 +11,8 @@
 #include <omp.h>
 #include <cstdio>
 
-const int HEIGHT = 1 << 4;
-const int WIDTH = 1 << 4;
+const int HEIGHT = 10;
+const int WIDTH = 10;
 
 int main()
 {
@@ -28,7 +29,7 @@ int main()
 
     printf("openmp + cuda:\n");
     C2.fill(0.0);
-    const int batSize = 3; // 每个CPU OpenMP线程处理的行数
+    const int batSize = 2; // 每个CPU OpenMP线程处理的行数
     #pragma omp parallel for num_threads(NUM_THREAD)
     for (int i = 0; i < NUM_THREAD; i++)
     {

@@ -70,7 +70,7 @@ public:
     inline bool fill(const type& val) const;
 
     /**
-     * @brief 使用随机数填充数组
+     * @brief 使用随机数填充juzhen 
      * @param mod 随机数范围
      */
     inline bool randFill(const int& mod) const;

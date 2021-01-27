@@ -1,4 +1,7 @@
 .vscode
-#*.exe
+*.exe
 *.exp
 *.lib
+*.csv
+*.txt
+main
