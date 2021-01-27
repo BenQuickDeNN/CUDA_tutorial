@@ -74,7 +74,7 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    cout << "HeightA = " << HeightA << ", WidhtA = " << WidthA << endl;
+    cout << "HeightA = " << HeightA << ", WidthA = " << WidthA << endl;
     cout << "HeightB = " << HeightB << ", WidthB = " << WidthB << endl;
 
     size_t HeightC = HeightA, WidthC = WidthB;

@@ -104,6 +104,7 @@ __global__ void cuda_gemm_shared_mem(type *_C, type *_A, type *_B,
         {
             _c += _A[y_wA + k] * _B[k * _wB + x];
         }
+
         // 计算结果写回
         _C[idx] = _c;
     }
