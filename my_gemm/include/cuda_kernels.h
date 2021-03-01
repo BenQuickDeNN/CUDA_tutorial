@@ -77,8 +77,7 @@ __global__ void cuda_gemm_shared_mem(type *_C, type *_A, type *_B,
 
         // 将数据装载到shared memory
         As[ty][tx] = _A[y_wA + tx + block * BLOCK_SIZE];
-        // Bs[ty][tx] = _B[(block * BLOCK_SIZE + ty) * _wB + x];
-        Bs[ty][tx] = _B[(block * BLOCK_SIZE + tx) * _wB + x];
+        Bs[ty][tx] = _B[(block * BLOCK_SIZE + ty) * _wB + x];
 
         // 等待所有线程装载完毕
         __syncthreads();
@@ -87,12 +86,10 @@ __global__ void cuda_gemm_shared_mem(type *_C, type *_A, type *_B,
         if (y < _hC && x < _wC)
         {
             // 分块内矩阵乘
-            // for (size_t k = 0; k < BLOCK_SIZE; ++k)
-            // {
-            //     _c += As[ty][k] * Bs[tx][k];
-            // }
-            // _c = Bs[ty][tx];
-            _c = (block * BLOCK_SIZE + ty) * _wB + x;
+            for (size_t k = 0; k < BLOCK_SIZE; ++k)
+            {
+                _c += As[ty][k] * Bs[k][tx];
+            }
          }
 
         // 等待所有线程完成计算

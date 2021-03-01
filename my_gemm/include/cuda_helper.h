@@ -176,6 +176,22 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
         return false;
     }
 
+    // 打印数据精度
+    cout << "Precise: ";
+    if (sizeof(type) == sizeof(float))
+    {
+        cout << "single";
+    }
+    else if (sizeof(type) == sizeof(double))
+    {
+        cout << "double";
+    }
+    else
+    {
+        cout << sizeof(type) << " bytes";
+    }
+    cout << endl;
+
     // 检查内存容量是否满足计算要求
     if ((_C.size() + _A.size() + _B.size()) * sizeof(type) >= gpuinfo_total_global_mem)
     {
