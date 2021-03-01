@@ -8,7 +8,10 @@
 #include <cmath>
 #include "config.h"
 
-// 只能在host端调用的矩阵
+/**
+ * @brief 只能在host端调用的矩阵
+ * 
+ */
 class MatirxHost
 {
 private:
@@ -18,23 +21,47 @@ public:
     size_t height = 0;
     size_t width = 0;
 
+    /**
+     * @brief 返回矩阵的尺寸
+     * 
+     * @return size_t 矩阵高度和宽度的乘积
+     */
     size_t size()
     {
         return height * width;
     }
 
+    /**
+     * @brief 返回指定位置的元素
+     * 
+     * @param _y Y轴（高度）索引
+     * @param _x X轴（宽度）索引
+     * @return type& 元素的引用
+     */
     type & at(const size_t &_y, const size_t &_x)
     {
         return data[_y * width + _x];
     }
 
+    /**
+     * @brief 重载括号运算符，返回指定位置的元素
+     * 
+     * @param _y Y轴（高度）索引
+     * @param _x X轴（宽度）索引
+     * @return type& 元素的引用
+     */
     type & operator () (const size_t &_y, const size_t &_x)
     {
         return at(_y, _x);
     }
 
-    // 矩阵乘
-    // _C = _A * _B
+    /**
+     * @brief 矩阵乘 _C = _A * _B
+     * 
+     * @param _C 储存计算结果的矩阵
+     * @param _A 矩阵A
+     * @param _B 矩阵B
+     */
     static void Multiply(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B)
     {
         using namespace std;
@@ -60,7 +87,15 @@ public:
         }
     }
 
-    // 检查矩阵是否可乘
+    /**
+     * @brief 检查矩阵是否可乘
+     * 
+     * @param _C 存放计算结果的矩阵
+     * @param _A 矩阵A
+     * @param _B 矩阵B
+     * @return true 可乘
+     * @return false 不可乘
+     */
     static bool canMul(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B)
     {
         using namespace std;
@@ -73,6 +108,11 @@ public:
         return true;
     }
 
+    /**
+     * @brief 填充矩阵元素
+     * 
+     * @param _val 元素值
+     */
     void fill(const type &_val)
     {
 #pragma omp parallel for
@@ -85,7 +125,11 @@ public:
         }
     }
 
-    // 随机生成矩阵元素
+    /**
+     * @brief 使用随机值填充矩阵元素
+     * 
+     * @param _maxVal 元素最大值
+     */
     void fillRandom(const size_t &_maxVal)
     {
         for (size_t y = 0; y < height; ++y)
@@ -97,6 +141,14 @@ public:
         }
     }
 
+    /**
+     * @brief 比较自身与另一个矩阵是否相同
+     * 
+     * @param _C 另一个矩阵
+     * @param _error 可接受误差
+     * @return true 相同
+     * @return false 不同
+     */
     bool compare(MatirxHost &_C, type _error)
     {
         using namespace std;
@@ -126,6 +178,10 @@ public:
         return true;
     }
 
+    /**
+     * @brief 打印显示矩阵的元素值
+     * 
+     */
     void display()
     {
         using namespace std;
@@ -140,6 +196,11 @@ public:
         }
     }
 
+    /**
+     * @brief 将矩阵元素值写入文件
+     * 
+     * @param _filename 文件名
+     */
     void writeToFile(const std::string &_filename)
     {
         using namespace std;
@@ -168,6 +229,12 @@ public:
         writer.close();
     }
 
+    /**
+     * @brief 矩阵初始化
+     * 
+     * @param _sizeY 矩阵高度
+     * @param _sizeX 矩阵宽度
+     */
     void init(const size_t &_sizeY, const size_t &_sizeX)
     {
         using namespace std;
@@ -181,6 +248,10 @@ public:
         width = _sizeX;
     }
 
+    /**
+     * @brief 回收内存
+     * 
+     */
     void flush()
     {
         if (data != NULL)
@@ -190,11 +261,21 @@ public:
         }
     }
 
+    /**
+     * @brief Construct a new Matirx Host object
+     * 
+     * @param _sizeY 矩阵高度
+     * @param _sizeX 矩阵宽度
+     */
     MatirxHost(const size_t &_sizeY, const size_t &_sizeX)
     {
         init(_sizeY, _sizeX);
     }
 
+    /**
+     * @brief Destroy the Matirx Host object
+     * 
+     */
     ~MatirxHost()
     {
         flush();

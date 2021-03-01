@@ -7,9 +7,20 @@
 #include "cuda_kernels.h"
 #include "matrix.h"
 
+/**
+ * @brief CUDAHelper
+ * 
+ */
 class CUDAHelper
 {
 public:
+    /**
+     * @brief 选择GPU
+     * 
+     * @param _deviceId GPU编号
+     * @return true 设置成功
+     * @return false 设置失败
+     */
     static bool setGPU(const size_t &_deviceId)
     {
         using namespace std;
@@ -23,6 +34,19 @@ public:
         return true;
     }
 
+    /**
+     * @brief 获取GPU参数
+     * 
+     * @param _deviceId GPU编号
+     * @param _name 返回GPU名
+     * @param _maxThreadsPerBlock 返回每个CUDA Block的最大线程数
+     * @param _maxBlocksPerSM 返回每个SM的最大CUDA Block数
+     * @param _smCount 返回SM的个数
+     * @param _totalGlobalMem 返回全局内存容量
+     * @param _sharedMemPerBlock 返回每个CUDA Block的shared memory容量
+     * @return true 获取成功
+     * @return false 获取失败
+     */
     static bool getGPUInfo(const size_t &_deviceId, std::string *_name, 
         size_t *_maxThreadsPerBlock, size_t *_maxBlocksPerSM, size_t *_smCount,
         size_t *_totalGlobalMem, size_t *_sharedMemPerBlock)
@@ -46,6 +70,17 @@ public:
         return true;
     }
 
+    /**
+     * @brief 打印GPU参数
+     * 
+     * @param _deviceId GPU编号
+     * @param _name GPU名
+     * @param _maxThreadsPerBlock 每个CUDA Block的最大线程数
+     * @param _maxBlocksPerSM 每个SM的最大CUDA Block数
+     * @param _smCount SM的个数
+     * @param _totalGlobalMem 全局内存的容量
+     * @param _sharedMemPerBlock 每个CUDA Block的shared memory容量
+     */
     static void printGPUInfo(const size_t &_deviceId, const std::string &_name,
         const size_t &_maxThreadsPerBlock, const size_t &_maxBlocksPerSM, const size_t &_smCount,
         const size_t &_totalGlobalMem, const size_t &_sharedMemPerBlock)
@@ -61,6 +96,14 @@ public:
         cout << "Shared Memory Per Block: " << (double)_sharedMemPerBlock / (double)KILO << " KB" << endl;
     }
 
+    /**
+     * @brief 在device端分配内存
+     * 
+     * @param _addr 首地址
+     * @param _length 长度
+     * @return true 分配成功
+     * @return false 分配失败
+     */
     static bool cuMalloc(void **_addr, const size_t &_length)
     {
         using namespace std;
@@ -74,6 +117,13 @@ public:
         return true;
     }
 
+    /**
+     * @brief 释放device端内存
+     * 
+     * @param _arr 首地址
+     * @return true 释放成功
+     * @return false 释放失败
+     */
     static bool cuFree(type *_arr)
     {
         using namespace std;
@@ -91,6 +141,15 @@ public:
         return true;
     }
 
+    /**
+     * @brief 从host端向device端传输数据
+     * 
+     * @param _source host端首地址
+     * @param _target device端首地址
+     * @param _length 长度
+     * @return true 传输成功
+     * @return false 传输失败
+     */
     static bool sendData(type *_source, type *_target, const size_t &_length)
     {
         using namespace std;
@@ -104,6 +163,15 @@ public:
         return true;
     }
 
+    /**
+     * @brief 在host端接收device端传回的数据
+     * 
+     * @param _source device端首地址
+     * @param _target host端首地址
+     * @param _length 长度
+     * @return true 传输成功
+     * @return false 传输失败
+     */
     static bool receivedData(type *_source, type *_target, const size_t &_length)
     {
         using namespace std;
@@ -118,6 +186,19 @@ public:
     }
 };
 
+/**
+ * @brief 执行矩阵乘内核
+ * 
+ * @tparam GRID_SIZE CUDA Grid的大小
+ * @tparam BLOCK_SIZE CUDA Block的大小
+ * @param _C 矩阵C
+ * @param _A 矩阵A
+ * @param _B 矩阵B
+ * @param _flag_sharedmem 是否使用shared memory
+ * @param _deviceId GPU编号
+ * @return true 执行成功
+ * @return false 执行失败
+ */
 template <size_t GRID_SIZE, size_t BLOCK_SIZE>
 bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     const bool &_flag_sharedmem,
@@ -177,7 +258,7 @@ bool exec_cuda_gemm_kernel(MatirxHost &_C, MatirxHost &_A, MatirxHost &_B,
     }
 
     // 打印数据精度
-    cout << "Precise: ";
+    cout << "Precision: ";
     if (sizeof(type) == sizeof(float))
     {
         cout << "single";

@@ -74,30 +74,17 @@ int main(int argc, char **argv)
         exit(0);
     }
 
+    // 打印矩阵信息
     cout << "HeightA = " << HeightA << ", WidthA = " << WidthA << endl;
     cout << "HeightB = " << HeightB << ", WidthB = " << WidthB << endl;
 
     size_t HeightC = HeightA, WidthC = WidthB;
 
+    // 初始化host端矩阵
     MatirxHost A(HeightA, WidthA), B(HeightB, WidthB);
     MatirxHost C(HeightC, WidthC), C_verify(HeightC, WidthC);
 
-    // A.fill(2.0); B.fill(3.0);
-    A.fillRandom(5); B.fillRandom(5);
-    // for (size_t row = 0; row < HeightA; ++row)
-    // {
-    //     for (size_t col = 0; col < WidthA; ++col)
-    //     {
-    //         A(row, col) = col;
-    //     }
-    // }
-    // for (size_t row = 0; row < HeightB; ++row)
-    // {
-    //     for (size_t col = 0; col < WidthB; ++col)
-    //     {
-    //         B(row, col) = row;
-    //     }
-    // }
+    A.fillRandom(10); B.fillRandom(10);
     A.writeToFile("matrix_A.txt");
     B.writeToFile("matrix_B.txt");
 
@@ -106,11 +93,6 @@ int main(int argc, char **argv)
     {
         MatirxHost::Multiply(C_verify, A, B);
         C_verify.compare(C, 0.1);
-
-        // cout << "C:" << endl;
-        // C.display();
-        // cout << endl << "C_verify:" << endl;
-        // C_verify.display();
 
         C.writeToFile("matrix_C.txt");
         C_verify.writeToFile("matrix_C_verify.txt");

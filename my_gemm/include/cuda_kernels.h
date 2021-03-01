@@ -3,6 +3,19 @@
 #include <cuda_runtime.h>
 #include "config.h"
 
+/**
+ * @brief 矩阵乘CUDA内核
+ * 
+ * @param _C 存储计算结果的矩阵C
+ * @param _A 矩阵A
+ * @param _B 矩阵B
+ * @param _hC 矩阵C的高度
+ * @param _wC 矩阵C的宽度
+ * @param _wA 矩阵A的宽度
+ * @param _wB 矩阵B的宽度
+ * @param _offsetY Y轴索引的偏移量
+ * @param _offsetX X轴索引的偏移量
+ */
 __global__ void cuda_gemm(type *_C, type *_A, type *_B,
     size_t _hC, size_t _wC, size_t _wA, size_t _wB, 
     size_t _offsetY, size_t _offsetX)
@@ -40,7 +53,20 @@ __global__ void cuda_gemm(type *_C, type *_A, type *_B,
     }
 }
 
-// 计算结果仍然不正确
+/**
+ * @brief 使用shared memory的矩阵乘CUDA内核
+ * 
+ * @tparam BLOCK_SIZE CUDA block的尺寸
+ * @param _C 存储计算结果的矩阵C
+ * @param _A 矩阵A
+ * @param _B 矩阵B
+ * @param _hC 矩阵C的高度
+ * @param _wC 矩阵C的宽度
+ * @param _wA 矩阵A的宽度
+ * @param _wB 矩阵B的宽度
+ * @param _offsetY Y轴索引的偏移量
+ * @param _offsetX X轴索引的偏移量
+ */
 template <size_t BLOCK_SIZE>
 __global__ void cuda_gemm_shared_mem(type *_C, type *_A, type *_B,
     size_t _hC, size_t _wC, size_t _wA, size_t _wB, 

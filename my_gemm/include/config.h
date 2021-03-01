@@ -7,6 +7,7 @@
 #define GLOBAL_SIZE 512 // 矩阵的默认长度
 
 typedef float type; // 设置数据类型
+// typedef double type
 
 const size_t KILO = 1 << 10;
 const size_t MEGA = 1 << 20;
